@@ -11,6 +11,5 @@ class Player{
     private:
       int jugador_;
       Environment actual_;
-      double alfabeta(Environment entorno , int profundidad ,int &accion, double alpha , double beta );
 };
 #endif
