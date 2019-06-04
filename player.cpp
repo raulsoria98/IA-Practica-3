@@ -62,70 +62,6 @@ double evaluarCasilla(int fil, int col, const Environment &estado, int jugador)
     if (estado.See_Casilla(fil, col) == 0)
         return 0.0;
 
-    /* // 4 en fila hacia derecha
-   if(col < 4)
-      if(estado.See_Casilla(fil, col) % 3 == estado.See_Casilla(fil, col + 1) % 3 == estado.See_Casilla(fil, col + 2) % 3 == estado.See_Casilla(fil, col + 3) % 3)
-         if(estado.See_Casilla(fil, col) % 3 == jugador)
-            return menosinf;
-         else
-            return masinf;
-
-   // 4 en fila hacia izquierda
-   if(col > 2)
-      if(estado.See_Casilla(fil, col) % 3 == estado.See_Casilla(fil, col - 1) % 3 == estado.See_Casilla(fil, col - 2) % 3 == estado.See_Casilla(fil, col - 3) % 3)
-         if(estado.See_Casilla(fil, col) % 3 == jugador)
-            return menosinf;
-         else
-            return masinf;
-
-   // 4 en fila hacia abajo
-   if(fil < 4)
-      if(estado.See_Casilla(fil, col) % 3 == estado.See_Casilla(fil + 1, col) % 3 == estado.See_Casilla(fil + 2, col) % 3 == estado.See_Casilla(fil + 3, col) % 3)
-         if(estado.See_Casilla(fil, col) % 3 == jugador)
-            return menosinf;
-         else
-            return masinf;
-
-   // 4 en fila hacia arriba
-   if(fil > 2)
-      if(estado.See_Casilla(fil, col) % 3 == estado.See_Casilla(fil - 1, col) % 3 == estado.See_Casilla(fil - 2, col) % 3 == estado.See_Casilla(fil - 3, col) % 3)
-         if(estado.See_Casilla(fil, col) % 3 == jugador)
-            return menosinf;
-         else
-            return masinf;
-
-   // 4 en diagonal derecha arriba
-   if(fil > 2 && col < 4)
-      if(estado.See_Casilla(fil, col) % 3 == estado.See_Casilla(fil - 1, col + 1) % 3 == estado.See_Casilla(fil - 2, col + 2) % 3 == estado.See_Casilla(fil - 3, col + 3) % 3)
-         if(estado.See_Casilla(fil, col) % 3 == jugador)
-            return menosinf;
-         else
-            return masinf;
-   
-   // 4 en diagonal derecha abajo
-   if(fil < 4 && col < 4)
-      if(estado.See_Casilla(fil, col) % 3 == estado.See_Casilla(fil + 1, col + 1) % 3 == estado.See_Casilla(fil + 2, col + 2) % 3 == estado.See_Casilla(fil + 3, col + 3) % 3)
-         if(estado.See_Casilla(fil, col) % 3 == jugador)
-            return menosinf;
-         else
-            return masinf;
-   
-   // 4 en diagonal izquierda arriba
-   if(fil > 2 && col > 2)
-      if(estado.See_Casilla(fil, col) % 3 == estado.See_Casilla(fil - 1, col - 1) % 3 == estado.See_Casilla(fil - 2, col - 2) % 3 == estado.See_Casilla(fil - 3, col - 3) % 3)
-         if(estado.See_Casilla(fil, col) % 3 == jugador)
-            return menosinf;
-         else
-            return masinf;
-   
-   // 4 en diagonal izquierda abajo
-   if(fil < 4 && col > 2)
-      if(estado.See_Casilla(fil, col) % 3 == estado.See_Casilla(fil + 1, col - 1) % 3 == estado.See_Casilla(fil + 2, col - 2) % 3 == estado.See_Casilla(fil + 3, col - 3) % 3)
-         if(estado.See_Casilla(fil, col) % 3 == jugador)
-            return menosinf;
-         else
-            return masinf; */
-
     // 3 en fila hacia derecha
     if (col < 5)
         if (estado.See_Casilla(fil, col) % 3 == estado.See_Casilla(fil, col + 1) % 3 == estado.See_Casilla(fil, col + 2) % 3)
@@ -415,17 +351,29 @@ Environment::ActionType Player::Think()
 
     // Opcion: Poda AlfaBeta
     // NOTA: La parametrizacion es solo orientativa
-    valor = Poda_AlfaBeta(actual_, jugador_, 0, PROFUNDIDAD_ALFABETA, accion, alpha, beta);
+
+    bool cambio_accion = false;
 
     if (actual_.Have_BOOM(jugador_))
     {
         Environment boom = actual_;
-        boom.AcceptAction(Environment::BOOM);
-        if (boom.JuegoTerminado() && boom.RevisarTablero() == jugador_)
-            accion = Environment::BOOM;
+        boom.AcceptAction(Environment::ActionType::BOOM);
+        if (boom.RevisarTablero() == jugador_)
+        {
+            accion = Environment::ActionType::BOOM;
+            cambio_accion = true;
+        }
     }
 
-    cout << "Valor MiniMax: " << valor << "  Accion: " << actual_.ActionStr(accion) << "\n" << endl;
+    if(!cambio_accion)
+    {
+        valor = Poda_AlfaBeta(actual_, jugador_, 0, PROFUNDIDAD_ALFABETA, accion, alpha, beta);
+        cout << "Valor MiniMax: " << valor << "  Accion: " << actual_.ActionStr(accion) << "\n" << endl;
+    }
+    else
+    {
+        cout << "No hemos usado la Poda_AlfaBeta para el último estado ya que al hacer BOOM se ganaba; Accion: " << actual_.ActionStr(accion) << "\n" << endl;
+    }
 
     return accion;
 }
